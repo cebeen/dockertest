@@ -1,0 +1,63 @@
+version: '2'
+services:
+  nexus:
+    image: test/nexus2
+    restart: always
+    ports:
+      - 8081:8081
+    networks:
+      - test2
+      - blub
+    depends_on:
+      - redis
+  nginx:
+    container_name: "nginx"
+    image: nginx
+    restart: always
+    networks:
+      - test2
+      - blub
+    ports:
+      - 443:433
+      - 80:80
+    volumes:
+      - "/srv:/tmp:rw"
+ #   volume_driver: local
+    depends_on:
+      - redis
+    links:
+      - tomcat:tomcat.akra.de
+  tomcat:
+    container_name: "tomcat"
+    image: tomcat
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - test2
+      - blub
+#    volumes:
+#      - /srv:/tmp
+    depends_on:
+      - redis
+#    links:
+#      - nginx:nginx
+  redis:
+     container_name: "redis"
+     restart: always
+     image: redis
+volumes:
+  test1:
+
+networks:
+  test2:
+    # Use a custom driver
+    driver: bridge
+  blub:
+   external:
+     name: blub
+
+#  default:
+#    external:
+#      name: blub
+    #driver: bridge
